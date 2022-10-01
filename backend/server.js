@@ -1,5 +1,6 @@
 import express from "express";
 const router = express.Router();
+import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import colors from "colors";
@@ -30,6 +31,21 @@ app.use("/api/config/paypal", (req, res) =>
 app.use("/api/config/googleSiteKey", (req, res) =>
   res.send(process.env.REACT_APP_GOOGLE_SITE_KEY)
 );
+
+const __dirname = path.resolve();
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"))
+  );
+} else {
+  app.get("/", (req, res) => {
+    res.send("API is running....");
+  });
+}
 
 app.use(notFound);
 
